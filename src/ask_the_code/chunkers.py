@@ -3,8 +3,8 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-import mistletoe
-import mistletoe.block_token
+from mistletoe import Document
+from mistletoe.block_token import Heading
 from mistletoe.markdown_renderer import MarkdownRenderer
 
 from ask_the_code.types import is_int
@@ -21,7 +21,7 @@ def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
     """Split a markdown document into sections based on headings."""
     text = path.read_text().strip()
 
-    doc = mistletoe.Document(text.splitlines())
+    doc = Document(text.splitlines())
     if not doc.children:
         yield (str(path), text)
 
@@ -30,7 +30,7 @@ def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
     heirarchy: list[str] = []
     with MarkdownRenderer(normalize_whitespace=True) as renderer:
         for token in doc.children:
-            if isinstance(token, mistletoe.block_token.Heading):
+            if isinstance(token, Heading):
                 rendered = renderer.render(token).strip()
                 token_level = token.level if is_int(token.level) else 1
                 heirarchy = heirarchy[: token_level - 1]

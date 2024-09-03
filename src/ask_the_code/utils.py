@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import shutil
 from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -39,6 +40,11 @@ def config_home() -> Path:
 def data_home() -> Path:
     """Get the data home directory (~/.local/share/ask)."""
     return Path(_platform_dir().user_data_dir)
+
+
+def clean_data_home() -> None:
+    """Clean the data home directory."""
+    shutil.rmtree(data_home(), ignore_errors=True)
 
 
 def copy_class_vars_to_instance(cls: type[T], instance: T) -> None:

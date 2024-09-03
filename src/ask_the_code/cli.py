@@ -7,6 +7,7 @@ from rich.progress import Progress
 from rich.table import Table
 
 from ask_the_code import llm
+from ask_the_code import utils
 from ask_the_code.config import Config
 from ask_the_code.store import Store, get_store
 
@@ -45,6 +46,10 @@ def cli(config: Config, store: Store, console: Console) -> None:
 
         if config.question == "create":
             store.create()
+            return
+
+        if config.question == "clean":
+            utils.clean_data_home()
             return
 
         if config.search:
