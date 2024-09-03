@@ -7,7 +7,7 @@ name = "ask-the-code"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.8,<3.12"
 license = "MIT"
 keywords = []
 authors = [
@@ -20,16 +20,28 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "chromadb>=0.5.5",
+  "dynaconf>=3.2.6",
+  "gitpython>=3.1.43",
+  "ollama>=0.3.2",
+  "mistletoe>=1.4.0",
+  "platformdirs>=4.2.2",
+  "rich>=13.8.0",
+  "typing-extensions>=4.12.2",
+  "marqo>=3.7.0",
+]
 
 [project.urls]
-Documentation = "https://github.com/Markis Taylor/ask-the-code#readme"
-Issues = "https://github.com/Markis Taylor/ask-the-code/issues"
-Source = "https://github.com/Markis Taylor/ask-the-code"
+Documentation = "https://github.com/markis/ask-the-code#readme"
+Issues = "https://github.com/markis/ask-the-code/issues"
+Source = "https://github.com/markis/ask-the-code"
+
+[project.scripts]
+ask-the-code = "ask_the_code.cli:main"
 
 [tool.hatch.version]
 path = "src/ask_the_code/__about__.py"
@@ -43,6 +55,10 @@ extra-dependencies = [
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/ask_the_code tests}"
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source_pkgs = ["ask_the_code", "tests"]
