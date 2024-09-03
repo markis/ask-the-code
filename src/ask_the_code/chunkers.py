@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections import defaultdict
-from collections.abc import Iterable
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import mistletoe
 import mistletoe.block_token
@@ -8,6 +9,9 @@ from mistletoe.markdown_renderer import MarkdownRenderer
 
 from ask_the_code.types import is_int
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
 
 Source = str
 Text = str
@@ -19,7 +23,7 @@ def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
 
     doc = mistletoe.Document(text.splitlines())
     if not doc.children:
-        return [(str(path), text)]
+        yield (str(path), text)
 
     sections: dict[str, list[str]] = defaultdict(list)
     current_section: str = ""
@@ -36,5 +40,5 @@ def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
             else:
                 sections[current_section].append(renderer.render(token))
 
-    for section, text in sections.items():
-        yield str(path) + section, "\n".join(text)
+    for section, text_chunk in sections.items():
+        yield str(path) + section, "\n".join(text_chunk)

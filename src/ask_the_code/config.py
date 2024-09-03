@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from argparse import SUPPRESS, ArgumentParser
 from functools import cache
 from pathlib import Path
 
-
-import ask_the_code.utils as utils
+from ask_the_code import utils
 
 
 class ConfigSettingsMixin:
@@ -29,7 +30,7 @@ class ConfigSettingsMixin:
             settings_files=["settings.toml"],
             environments=False,
         )
-        for key in ConfigSettingsMixin.__annotations__.keys():
+        for key in ConfigSettingsMixin.__annotations__:
             if key in settings:
                 setattr(self, key, settings[key])
 
@@ -56,12 +57,12 @@ class ConfigArgsMixin:
 class Config(ConfigArgsMixin, ConfigSettingsMixin):
     """Configuration class for the CLI."""
 
-    def __init__(self, init_mixin: bool = True) -> None:
+    def __init__(self, *, init_mixin: bool = True) -> None:
         if init_mixin:
             ConfigSettingsMixin.init_mixin(self)
             ConfigArgsMixin.init_mixin(self)
 
     @cache
     @staticmethod
-    def create() -> "Config":
+    def create() -> Config:
         return Config()

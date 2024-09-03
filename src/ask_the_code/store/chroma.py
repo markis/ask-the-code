@@ -30,6 +30,7 @@ class ChromaStore:
         return f"docs-{self.working_path.name}"
 
     def __init__(self, config: Config) -> None:
+        """Initialize the ChromaStore."""
         self.config = config
         self.working_path = get_working_path(config.repo)
 
@@ -43,6 +44,7 @@ class ChromaStore:
             self.add_document(file)
 
     def add_document(self, path: Path) -> None:
+        """Add a document to the knowledge store."""
         client = self.client
         collection = client.get_collection(self.collection_name)
 
@@ -52,9 +54,10 @@ class ChromaStore:
         while batch := list(islice(iterator, MAX_BATCH_SIZE)):
             ids = [doc["source"] for doc in batch]
             docs = [doc["text"] for doc in batch]
-            _ = collection.upsert(ids=ids, documents=docs)
+            collection.upsert(ids=ids, documents=docs)
 
     def reset_index(self) -> None:
+        """Reset the knowledge store."""
         client = self.client
         try:
             client.delete_collection(self.collection_name)
@@ -67,16 +70,17 @@ class ChromaStore:
             logger.exception("Failed to create collection.")
 
     def search(self, query: str) -> Collection[DocSource]:
+        """Query the knowledge store for content"""
         client = self.client
         collection = client.get_collection(self.collection_name)
         results = collection.query(query_texts=query, n_results=10)
-        if not results:
+        if not results or not (documents := results.get("documents")):
             return []
 
-        docs = (doc for docs in results.get("documents", []) for doc in docs)
-        ids = (id for ids in results["ids"] for id in ids)
-
         return [
-            DocSource(source=id, text=doc)
-            for id, doc in zip(ids, (doc for doc in docs))
+            DocSource(source=source, text=text)
+            for source, text in zip(
+                (source for ids in results["ids"] for source in ids),
+                (text for texts in documents for text in texts),
+            )
         ]

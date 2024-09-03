@@ -22,22 +22,19 @@ def _get_llm_generate(config: Config) -> Callable[[str], Iterable[str]]:
     return generate
 
 
-def answer(
-    config: Config, context: Iterable[DocSource], question: str
-) -> Iterable[str]:
+def answer(config: Config, context: Iterable[DocSource], question: str) -> Iterable[str]:
     """Generate an answer based on user input using a LLM and Store."""
     generate = _get_llm_generate(config)
 
     sources = "\n".join(
-        f"[{i+1}] {source["source"]}\n {source["text"]}"
-        for i, source in enumerate(context)
+        (str(i + 1) + ": " + source["source"] + "\n " + source["text"]) for i, source in enumerate(context)
     )
 
     prompt = f"""
     Given the following extracted parts of a long document ("SOURCES") and a question ("QUESTION").
     Create a final answer one paragraph long.
     Answer the question and cite the sources in the answer.
-    Don't try to make up an answer and use the text in the SOURCES only for the answer. 
+    Don't try to make up an answer and use the text in the SOURCES only for the answer.
     If you don't know the answer, just say that you don't know.
 
     QUESTION: {question}

@@ -1,26 +1,44 @@
-from collections.abc import Collection
+from __future__ import annotations
+
 import logging
 from functools import cache
 from itertools import islice
 from pathlib import Path
+from typing import TYPE_CHECKING, Final
 
 from git import Repo
 from marqo.client import Client
 from marqo.errors import IndexAlreadyExistsError, MarqoWebError
-from marqo.index import Index
-from typing_extensions import Final
+from typing_extensions import TypedDict, TypeGuard
 
 from ask_the_code.chunkers import markdown_chunker
-from ask_the_code.config import Config
-from ask_the_code.types import (
-    DocSource,
-    is_marqo_knowledge_store_response,
-)
+from ask_the_code.types import DocSource
 from ask_the_code.utils import get_repo_files
 
 MAX_BATCH_SIZE: Final = 128
 RELAVANCE_SCORE: Final = 0.6
 logger: Final = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
+    from marqo.index import Index
+
+    from ask_the_code.config import Config
+
+
+class MarqoKnowledgeStoreResponseHit(DocSource):
+    _score: float
+
+
+class MarqoKnowledgeStoreResponse(TypedDict):
+    hits: list[MarqoKnowledgeStoreResponseHit]
+
+
+def is_marqo_knowledge_store_response(
+    obj: object,
+) -> TypeGuard[MarqoKnowledgeStoreResponse]:
+    return isinstance(obj, dict) and "hits" in obj
 
 
 @cache
@@ -42,9 +60,7 @@ class MarqoStore:
 
     def __init__(self, config: Config) -> None:
         self.config = config
-        self.working_path = Path(
-            Repo(config.repo, search_parent_directories=True).working_dir
-        )
+        self.working_path = Path(Repo(config.repo, search_parent_directories=True).working_dir)
 
     def create(self) -> None:
         """Create the knowledge store."""
@@ -69,7 +85,8 @@ class MarqoStore:
         index = _get_index(self.config)
         resp = index.search(q=query, show_highlights=False)
         if not is_marqo_knowledge_store_response(resp):
-            raise ValueError(f"Unexpected response from Marqo: {resp}")
+            error_msg = f"Unexpected response from Marqo: {resp}"
+            raise ValueError(error_msg)
 
         return [res for res in resp["hits"] if res["_score"] > RELAVANCE_SCORE]
 
@@ -89,10 +106,6 @@ class MarqoStore:
 
         try:
             client = _get_client(self.config.marqo_url)
-            index = client.create_index(
-                index_name=index_name, model=self.config.marqo_model
-            )
+            index = client.create_index(index_name=index_name, model=self.config.marqo_model)
         except IndexAlreadyExistsError:
-            logger.exception(
-                "Index '%s' already exists. Updating settings.", index_name
-            )
+            logger.exception("Index '%s' already exists. Updating settings.", index_name)

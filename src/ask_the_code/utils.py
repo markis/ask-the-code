@@ -1,14 +1,20 @@
-from functools import cache
+from __future__ import annotations
+
 import sys
-from collections.abc import Iterable
+from functools import cache
 from pathlib import Path
-from typing import TypeVar
+from typing import TYPE_CHECKING
 
 from git.cmd import Git
 from git.repo import Repo
-from platformdirs import PlatformDirsABC
+from typing_extensions import TypeVar
 
 T = TypeVar("T")
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from platformdirs import PlatformDirsABC
 
 
 @cache

@@ -8,10 +8,18 @@ from ask_the_code.types import DocSource
 
 
 class Store(Protocol):
-    def create(self) -> None: ...
-    def add_document(self, path: Path) -> None: ...
-    def reset_index(self) -> None: ...
-    def search(self, query: str) -> Collection[DocSource]: ...
+    def create(self) -> None:
+        """Create the store."""
+
+    def add_document(self, path: Path) -> None:
+        """Add a document to the store."""
+
+    def reset_index(self) -> None:
+        """Reset the index."""
+
+    def search(self, query: str) -> Collection[DocSource]:
+        """Search the index for a query."""
+        ...
 
 
 @cache
@@ -26,4 +34,5 @@ def get_store(config: Config) -> Store:
 
         return MarqoStore(config)
 
-    raise ValueError(f"Unknown store: {config.store}")
+    err_msg = f"Unknown store: {config.store}"
+    raise ValueError(err_msg)
