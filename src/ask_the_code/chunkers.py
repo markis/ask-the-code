@@ -17,7 +17,7 @@ Source = str
 Text = str
 
 
-def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
+def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, Text]]:
     """Split a markdown document into sections based on headings."""
     text = path.read_text().strip()
 
@@ -27,18 +27,15 @@ def markdown_chunker(path: Path) -> Iterable[tuple[Source, Text]]:
 
     sections: dict[str, list[str]] = defaultdict(list)
     current_section: str = ""
-    heirarchy: list[str] = []
     with MarkdownRenderer(normalize_whitespace=True) as renderer:
         for token in doc.children:
             if isinstance(token, Heading):
                 rendered = renderer.render(token).strip()
                 token_level = token.level if is_int(token.level) else 1
-                heirarchy = heirarchy[: token_level - 1]
-                heirarchy.append(rendered)
-                current_section = " > ".join(heirarchy)
+                current_section = rendered
                 sections[current_section].append(current_section)
             else:
                 sections[current_section].append(renderer.render(token))
 
     for section, text_chunk in sections.items():
-        yield str(path) + section, "\n".join(text_chunk)
+        yield str(relative_path) + section, "\n".join(text_chunk)

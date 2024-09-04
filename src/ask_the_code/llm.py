@@ -1,10 +1,7 @@
-import logging
 from collections.abc import Callable, Iterable
 
 from ask_the_code.config import Config
 from ask_the_code.types import DocSource
-
-logger = logging.getLogger(__name__)
 
 
 def _get_llm_generate(config: Config) -> Callable[[str], Iterable[str]]:
@@ -16,18 +13,19 @@ def _get_llm_generate(config: Config) -> Callable[[str], Iterable[str]]:
         client = Client(config.ollama_url)
         for resp in client.generate(config.ollama_model, prompt, stream=True):
             if "response" in resp and isinstance(resp["response"], str):
-                logger.debug("Generated: %s", resp)
                 yield resp["response"]
 
     return generate
 
 
-def answer(config: Config, context: Iterable[DocSource], question: str) -> Iterable[str]:
+def answer(
+    config: Config, context: Iterable[DocSource], question: str
+) -> Iterable[str]:
     """Generate an answer based on user input using a LLM and Store."""
     generate = _get_llm_generate(config)
 
     sources = "\n".join(
-        (str(i + 1) + ": " + source["source"] + "\n " + source["text"]) for i, source in enumerate(context)
+        (source["source"] + ":\n " + source["text"]) for source in context
     )
 
     prompt = f"""

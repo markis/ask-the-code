@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import logging
+from collections.abc import Iterable
+import contextlib
 from functools import cache
 from itertools import islice
 from pathlib import Path
@@ -17,7 +18,6 @@ from ask_the_code.utils import get_repo_files
 
 MAX_BATCH_SIZE: Final = 128
 RELAVANCE_SCORE: Final = 0.6
-logger: Final = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Collection
@@ -60,14 +60,17 @@ class MarqoStore:
 
     def __init__(self, config: Config) -> None:
         self.config = config
-        self.working_path = Path(Repo(config.repo, search_parent_directories=True).working_dir)
+        self.working_path = Path(
+            Repo(config.repo, search_parent_directories=True).working_dir
+        )
 
-    def create(self) -> None:
+    def create(self) -> Iterable[None]:
         """Create the knowledge store."""
         self.reset_index()
         files = get_repo_files(self.working_path, self.config.glob)
         for file in files:
             self.add_document(file)
+            yield
 
     def add_document(self, path: Path) -> None:
         """Add a document to the knowledge store."""
@@ -81,7 +84,6 @@ class MarqoStore:
 
     def search(self, query: str) -> Collection[DocSource]:
         """Query the knowledge store for content based on a query."""
-        logger.info("QUERY: %s", query)
         index = _get_index(self.config)
         resp = index.search(q=query, show_highlights=False)
         if not is_marqo_knowledge_store_response(resp):
@@ -98,14 +100,12 @@ class MarqoStore:
         or creation, it will print the error message.
         """
         index_name = self.config.index_name
-        try:
+        with contextlib.suppress(MarqoWebError):
             index = _get_index(self.config)
             _ = index.delete()
-        except MarqoWebError:
-            logger.exception("Index '%s' not found. Creating a new one.", index_name)
 
-        try:
+        with contextlib.suppress(IndexAlreadyExistsError):
             client = _get_client(self.config.marqo_url)
-            index = client.create_index(index_name=index_name, model=self.config.marqo_model)
-        except IndexAlreadyExistsError:
-            logger.exception("Index '%s' already exists. Updating settings.", index_name)
+            index = client.create_index(
+                index_name=index_name, model=self.config.marqo_model
+            )

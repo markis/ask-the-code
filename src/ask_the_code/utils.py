@@ -6,7 +6,6 @@ from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from git.cmd import Git
 from git.repo import Repo
 from typing_extensions import TypeVar
 
@@ -57,11 +56,13 @@ def copy_class_vars_to_instance(cls: type[T], instance: T) -> None:
 
 def get_working_path(cwd: Path) -> Path:
     """Get the working path."""
-    return Path(Repo(cwd, search_parent_directories=True).working_dir)
+    with Repo(cwd, search_parent_directories=True) as repo:
+        return Path(repo.working_dir)
 
 
 def get_repo_files(path: Path, glob: str) -> Iterable[Path]:
     """Get the documents files."""
-    working_path = get_working_path(path)
-    output = str(Git(working_path).ls_files(glob))
-    return (get_working_path(path) / file for file in output.splitlines())
+    with Repo(path, search_parent_directories=True) as repo:
+        working_path = Path(repo.working_dir)
+        files = [file for file in working_path.glob(glob) if not repo.ignored(file)]
+    yield from files

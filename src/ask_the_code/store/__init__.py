@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Collection, Iterable
 from functools import cache
 from pathlib import Path
 from typing import Protocol
@@ -8,14 +8,17 @@ from ask_the_code.types import DocSource
 
 
 class Store(Protocol):
-    def create(self) -> None:
+    def create(self) -> Iterable[None]:
         """Create the store."""
+        ...
 
     def add_document(self, path: Path) -> None:
         """Add a document to the store."""
+        ...
 
     def reset_index(self) -> None:
         """Reset the index."""
+        ...
 
     def search(self, query: str) -> Collection[DocSource]:
         """Search the index for a query."""

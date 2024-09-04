@@ -1,8 +1,9 @@
-import logging
-from collections.abc import Collection
+import contextlib
+from collections.abc import Collection, Iterable
 from itertools import islice
 from pathlib import Path
 from typing import Final
+from typing_extensions import TYPE_CHECKING
 from uuid import UUID
 
 from chromadb import PersistentClient
@@ -13,7 +14,9 @@ from ask_the_code.config import Config
 from ask_the_code.types import DocSource
 from ask_the_code.utils import data_home, get_repo_files, get_working_path
 
-logger: Final = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 
 CHROMA_NAMESPACE: Final = UUID("c0e5b3b8-0b1d-4d4c-8b1f-8a3f4c6b3b4d")
 CHROMA_DIR: Final = "chroma"
@@ -36,19 +39,20 @@ class ChromaStore:
 
         self.client = PersistentClient(str(data_home() / CHROMA_DIR))
 
-    def create(self) -> None:
+    def create(self) -> Iterable[None]:
         """Create the knowledge store."""
         self.reset_index()
         files = get_repo_files(self.working_path, self.config.glob)
         for file in files:
-            self.add_document(file)
+            yield self.add_document(file)
 
     def add_document(self, path: Path) -> None:
         """Add a document to the knowledge store."""
         client = self.client
         collection = client.get_collection(self.collection_name)
+        relative_path = path.relative_to(self.working_path)
 
-        chunks = markdown_chunker(path)
+        chunks = markdown_chunker(path, relative_path)
 
         iterator = iter({"source": source, "text": chunk} for source, chunk in chunks)
         while batch := list(islice(iterator, MAX_BATCH_SIZE)):
@@ -59,15 +63,9 @@ class ChromaStore:
     def reset_index(self) -> None:
         """Reset the knowledge store."""
         client = self.client
-        try:
+        with contextlib.suppress(ValueError):
             client.delete_collection(self.collection_name)
-        except ValueError:
-            logger.warning("Failed to delete collection, it may not exist.")
-
-        try:
-            _ = client.create_collection(self.collection_name)
-        except ValueError:
-            logger.exception("Failed to create collection.")
+        _ = client.create_collection(self.collection_name)
 
     def search(self, query: str) -> Collection[DocSource]:
         """Query the knowledge store for content"""

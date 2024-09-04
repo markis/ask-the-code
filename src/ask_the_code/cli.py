@@ -11,7 +11,7 @@ from ask_the_code import utils
 from ask_the_code.config import Config
 from ask_the_code.store import Store, get_store
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
 
 HELP = """
 [bold blue]Usage: ask [OPTIONS] <QUESTION>[/bold blue]
@@ -45,7 +45,7 @@ def cli(config: Config, store: Store, console: Console) -> None:
             return
 
         if config.question == "create":
-            store.create()
+            create(store, console)
             return
 
         if config.question == "clean":
@@ -59,6 +59,15 @@ def cli(config: Config, store: Store, console: Console) -> None:
         ask(config, store, console, config.question)
     except KeyboardInterrupt:
         console.print("\n[red]Cancelled![/red]")
+    except Exception:
+        console.print_exception()
+
+
+def create(store: Store, console: Console) -> None:
+    with Progress(console=console, transient=True) as progress:
+        for i in progress.track(store.create(), description="Indexing"):
+            pass
+    console.print("[green]Indexing complete![/green]")
 
 
 def search(store: Store, console: Console, query: str) -> None:
@@ -72,13 +81,10 @@ def search(store: Store, console: Console, query: str) -> None:
 
 
 def ask(config: Config, store: Store, console: Console, question: str) -> None:
-    buffer = ""
-    with Progress(console=console) as progress:
-        progress.start()
-        sources = store.search(question)
-        response_stream = llm.answer(config, sources, question)
-        progress.stop()
+    sources = store.search(question)
+    response_stream = llm.answer(config, sources, question)
 
+    buffer = ""
     with Live(console=console) as live:
         for resp in response_stream:
             buffer += resp
