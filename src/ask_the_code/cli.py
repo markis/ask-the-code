@@ -65,7 +65,7 @@ def cli(config: Config, store: Store, console: Console) -> None:
 
 def create(store: Store, console: Console) -> None:
     with Progress(console=console, transient=True) as progress:
-        for i in progress.track(store.create(), description="Indexing"):
+        for _ in progress.track(store.create(), description="Indexing"):
             pass
     console.print("[green]Indexing complete![/green]")
 

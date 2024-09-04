@@ -7,7 +7,6 @@ from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.markdown_renderer import MarkdownRenderer
 
-from ask_the_code.types import is_int
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -15,6 +14,10 @@ if TYPE_CHECKING:
 
 Source = str
 Text = str
+
+
+def _convert_to_github_headline_link(text: str) -> str:
+    return text.strip("#").strip().replace(" ", "-").lower()
 
 
 def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, Text]]:
@@ -30,12 +33,10 @@ def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, 
     with MarkdownRenderer(normalize_whitespace=True) as renderer:
         for token in doc.children:
             if isinstance(token, Heading):
-                rendered = renderer.render(token).strip()
-                token_level = token.level if is_int(token.level) else 1
-                current_section = rendered
-                sections[current_section].append(current_section)
+                current_section = renderer.render(token)
+                current_section = _convert_to_github_headline_link(current_section)
             else:
                 sections[current_section].append(renderer.render(token))
 
     for section, text_chunk in sections.items():
-        yield str(relative_path) + section, "\n".join(text_chunk)
+        yield f"{relative_path}#{section}", "\n".join(text_chunk)
