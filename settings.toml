@@ -1,5 +1,0 @@
-ollama_url = "http://localhost:11434"
-ollama_model = "llama3.1"
-
-marqo_url = "http://localhost:8882"
-marqo_model = "hf/all_datasets_v4_MiniLM-L6"
