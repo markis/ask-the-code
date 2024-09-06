@@ -33,6 +33,9 @@ dependencies = [
   "rich>=13.8.0",
   "typing-extensions>=4.12.2",
   "marqo>=3.7.0",
+  "huggingface-hub>=0.24.6",
+  "flagembedding>=1.2.11",
+  "peft>=0.12.0",
 ]
 
 [project.urls]
@@ -41,7 +44,7 @@ Issues = "https://github.com/markis/ask-the-code/issues"
 Source = "https://github.com/markis/ask-the-code"
 
 [project.scripts]
-ask-the-code = "ask_the_code.cli:main"
+ask-the-code = "ask_the_code.cli:run"
 
 [tool.hatch.version]
 path = "src/ask_the_code/__about__.py"

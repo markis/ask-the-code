@@ -2,12 +2,12 @@ import contextlib
 from collections.abc import Collection, Iterable
 from itertools import islice
 from pathlib import Path
-from typing import Final
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 from uuid import UUID
 
 from chromadb import PersistentClient
 from chromadb.api import ClientAPI
+from FlagEmbedding import FlagReranker
 
 from ask_the_code.chunkers import markdown_chunker
 from ask_the_code.config import Config
@@ -27,6 +27,7 @@ class ChromaStore:
     config: Final[Config]
     client: Final[ClientAPI]
     working_path: Final[Path]
+    reranker: Final[FlagReranker]
 
     @property
     def collection_name(self) -> str:
@@ -38,6 +39,11 @@ class ChromaStore:
         self.working_path = get_working_path(config.repo)
 
         self.client = PersistentClient(str(data_home() / CHROMA_DIR))
+        self.reranker = FlagReranker(
+            config.reranker_model,
+            use_fp16=True,
+            cache_dir=str(data_home() / CHROMA_DIR),
+        )
 
     def create(self) -> Iterable[None]:
         """Create the knowledge store."""
@@ -67,7 +73,7 @@ class ChromaStore:
             client.delete_collection(self.collection_name)
         _ = client.create_collection(self.collection_name)
 
-    def search(self, query: str) -> Collection[DocSource]:
+    def search(self, query: str, min_score: float = 0.0) -> Collection[DocSource]:
         """Query the knowledge store for content"""
         client = self.client
         collection = client.get_collection(self.collection_name)
@@ -75,10 +81,16 @@ class ChromaStore:
         if not results or not (documents := results.get("documents")):
             return []
 
-        return [
-            DocSource(source=source, text=text)
-            for source, text in zip(
-                (source for ids in results["ids"] for source in ids),
-                (text for texts in documents for text in texts),
-            )
-        ]
+        ids = [source for ids in results["ids"] for source in ids]
+        texts = [text for texts in documents for text in texts]
+        scores = self.reranker.compute_score([[query, text] for text in texts])
+
+        return sorted(
+            [
+                DocSource(source=source, text=text, score=score)
+                for source, text, score in zip(ids, texts, scores)
+                if score > min_score
+            ],
+            key=lambda doc: doc["score"],
+            reverse=True,
+        )

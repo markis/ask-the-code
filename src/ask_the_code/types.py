@@ -6,6 +6,7 @@ from typing_extensions import TypedDict, TypeGuard
 class DocSource(TypedDict):
     source: str
     text: str
+    score: float
 
 
 def is_doc_source(obj: object) -> TypeGuard[DocSource]:

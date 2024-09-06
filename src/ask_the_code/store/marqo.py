@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
 import contextlib
+from collections.abc import Iterable
 from functools import cache
 from itertools import islice
 from pathlib import Path

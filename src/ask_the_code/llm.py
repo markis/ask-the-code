@@ -1,4 +1,5 @@
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Collection
+
 
 from ask_the_code.config import Config
 from ask_the_code.types import DocSource
@@ -19,7 +20,7 @@ def _get_llm_generate(config: Config) -> Callable[[str], Iterable[str]]:
 
 
 def answer(
-    config: Config, context: Iterable[DocSource], question: str
+    config: Config, context: Collection[DocSource], question: str
 ) -> Iterable[str]:
     """Generate an answer based on user input using a LLM and Store."""
     generate = _get_llm_generate(config)

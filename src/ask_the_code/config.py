@@ -20,6 +20,8 @@ class ConfigSettingsMixin:
     marqo_model: str = "hf/all_datasets_v4_MiniLM-L6"
     index_name: str = "knowledge-management"
 
+    reranker_model: str = "BAAI/bge-reranker-large"
+
     def init_mixin(self) -> None:
         from dynaconf import Dynaconf
 

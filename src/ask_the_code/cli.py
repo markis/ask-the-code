@@ -6,8 +6,7 @@ from rich.markdown import Markdown
 from rich.progress import Progress
 from rich.table import Table
 
-from ask_the_code import llm
-from ask_the_code import utils
+from ask_the_code import llm, utils
 from ask_the_code.config import Config
 from ask_the_code.store import Store, get_store
 
@@ -38,23 +37,32 @@ HELP = """
 """.strip()
 
 
+def run() -> None:
+    config = Config.create()
+    store = get_store(config)
+    console = Console()
+
+    cli(config, store, console)
+
+
 def cli(config: Config, store: Store, console: Console) -> None:
     try:
         if config.help or config.question is None:
-            console.print(HELP)
-            return
+            return console.print(HELP)
 
         if config.question == "create":
-            create(store, console)
-            return
+            return create(store, console)
 
         if config.question == "clean":
-            utils.clean_data_home()
+            return utils.clean_data_home()
+
+        if config.question == "download":
+            path = utils.download_hf_model("BAAI/bge-reranker-large")
+            console.print(f"Model downloaded to [bold]{path}[/bold]")
             return
 
         if config.search:
-            search(store, console, config.question)
-            return
+            return search(store, console, config.question)
 
         ask(config, store, console, config.question)
     except KeyboardInterrupt:
@@ -73,10 +81,13 @@ def create(store: Store, console: Console) -> None:
 def search(store: Store, console: Console, query: str) -> None:
     sources = store.search(query)
     source_table = Table(title="Sources")
+    source_table.add_column("Score", style="bold blue")
     source_table.add_column("Source", style="bold green")
     source_table.add_column("Text")
     for source in sources:
-        source_table.add_row(source["source"], Markdown(source["text"]))
+        source_table.add_row(
+            str(source["score"]), source["source"], Markdown(source["text"])
+        )
     console.print(source_table)
 
 
@@ -92,6 +103,4 @@ def ask(config: Config, store: Store, console: Console, question: str) -> None:
 
 
 if __name__ == "__main__":
-    config = Config.create()
-    store = get_store(config)
-    cli(config, store, Console())
+    run()

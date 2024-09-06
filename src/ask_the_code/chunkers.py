@@ -7,7 +7,6 @@ from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.markdown_renderer import MarkdownRenderer
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
