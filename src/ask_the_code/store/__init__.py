@@ -1,5 +1,4 @@
 from collections.abc import Collection, Iterable
-from functools import cache
 from pathlib import Path
 from typing import Protocol
 
@@ -25,7 +24,6 @@ class Store(Protocol):
         ...
 
 
-@cache
 def get_store(config: Config) -> Store:
     if config.store == "chroma":
         from ask_the_code.store.chroma import ChromaStore

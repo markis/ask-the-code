@@ -1,3 +1,3 @@
-from ask_the_code.cli import run
+from ask_the_code.cli import cli
 
-run()
+cli()

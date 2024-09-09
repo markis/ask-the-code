@@ -197,7 +197,9 @@ version = "0.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "chromadb", marker = "python_full_version < '3.12'" },
+    { name = "click", marker = "python_full_version < '3.12'" },
     { name = "dynaconf", marker = "python_full_version < '3.12'" },
+    { name = "fast-depends", marker = "python_full_version < '3.12'" },
     { name = "flagembedding", marker = "python_full_version < '3.12'" },
     { name = "gitpython", marker = "python_full_version < '3.12'" },
     { name = "huggingface-hub", marker = "python_full_version < '3.12'" },
@@ -213,7 +215,9 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "chromadb", specifier = ">=0.5.5" },
+    { name = "click", specifier = ">=8.1.7" },
     { name = "dynaconf", specifier = ">=3.2.6" },
+    { name = "fast-depends", specifier = ">=2.4.3" },
     { name = "flagembedding", specifier = ">=1.2.11" },
     { name = "gitpython", specifier = ">=3.1.43" },
     { name = "huggingface-hub", specifier = ">=0.24.6" },
@@ -574,6 +578,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/09/35/2495c4ac46b980e4ca1f6ad6db102322ef3ad2410b79fdde159a4b0f3b92/exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc", size = 28883 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/02/cc/b7e31358aac6ed1ef2bb790a9746ac2c69bcb3c8588b41616914eb106eaf/exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b", size = 16453 },
+]
+
+[[package]]
+name = "fast-depends"
+version = "2.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio", marker = "python_full_version < '3.12'" },
+    { name = "pydantic", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/57/b9/e67e65984f7127ae5d49bbc40160901aab2a95b9d5352e3a25200337b6af/fast_depends-2.4.3.tar.gz", hash = "sha256:be39b3d80bf1ee807ccf3e13a5c12a646605e6b2070df0b3f8807b5efb42d34a", size = 16386 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/64/576d8c02c922710de863bb8567129f0d92d3ed2a68e72886a13788c84e35/fast_depends-2.4.3-py3-none-any.whl", hash = "sha256:4cf483575b2b7b0a3294fd4ca244698f1bf24d995ea665c3ae79b67e79b1384d", size = 17364 },
 ]
 
 [[package]]
