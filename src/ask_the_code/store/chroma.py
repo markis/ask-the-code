@@ -1,5 +1,6 @@
 import contextlib
 from collections.abc import Collection, Iterable
+from functools import cached_property
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
@@ -12,7 +13,7 @@ from FlagEmbedding import FlagReranker
 from ask_the_code.chunkers import markdown_chunker
 from ask_the_code.config import Config
 from ask_the_code.types import DocSource
-from ask_the_code.utils import data_home, get_repo_files, get_working_path
+from ask_the_code.utils import cache_home, data_home, get_repo_files, get_working_path
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -25,25 +26,30 @@ MAX_BATCH_SIZE: Final = 128
 
 class ChromaStore:
     config: Final[Config]
-    client: Final[ClientAPI]
-    working_path: Final[Path]
-    reranker: Final[FlagReranker]
 
     @property
     def collection_name(self) -> str:
         return f"docs-{self.working_path.name}"
 
+    @cached_property
+    def client(self) -> ClientAPI:
+        return PersistentClient(str(data_home() / CHROMA_DIR))
+
+    @cached_property
+    def reranker(self) -> FlagReranker:
+        return FlagReranker(
+            self.config.reranker_model,
+            use_fp16=True,
+            cache_dir=str(cache_home() / CHROMA_DIR),
+        )
+
+    @cached_property
+    def working_path(self) -> Path:
+        return get_working_path(self.config.repo)
+
     def __init__(self, config: Config) -> None:
         """Initialize the ChromaStore."""
         self.config = config
-        self.working_path = get_working_path(config.repo)
-
-        self.client = PersistentClient(str(data_home() / CHROMA_DIR))
-        self.reranker = FlagReranker(
-            config.reranker_model,
-            use_fp16=True,
-            cache_dir=str(data_home() / CHROMA_DIR),
-        )
 
     def create(self) -> Iterable[None]:
         """Create the knowledge store."""

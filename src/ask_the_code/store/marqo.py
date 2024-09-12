@@ -60,9 +60,7 @@ class MarqoStore:
 
     def __init__(self, config: Config) -> None:
         self.config = config
-        self.working_path = Path(
-            Repo(config.repo, search_parent_directories=True).working_dir
-        )
+        self.working_path = Path(Repo(config.repo, search_parent_directories=True).working_dir)
 
     def create(self) -> Iterable[None]:
         """Create the knowledge store."""
@@ -106,6 +104,4 @@ class MarqoStore:
 
         with contextlib.suppress(IndexAlreadyExistsError):
             client = _get_client(self.config.marqo_url)
-            index = client.create_index(
-                index_name=index_name, model=self.config.marqo_model
-            )
+            index = client.create_index(index_name=index_name, model=self.config.marqo_model)

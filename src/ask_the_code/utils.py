@@ -82,5 +82,4 @@ def download_hf_model(repo_id: str) -> str:
     from huggingface_hub import hf_hub_download
 
     # Download the model from the Hugging Face Hub
-    model_path = hf_hub_download(repo_id=repo_id, filename="model.zip")
-    return model_path
+    return hf_hub_download(repo_id=repo_id, filename="model.zip")

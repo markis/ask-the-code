@@ -14,6 +14,7 @@ class Config(BaseModel):
     llm: str = "ollama"
     store: str = "chroma"
     repo: Path = Path.cwd()
+    glob: str = "**/*.md"
 
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.1"
@@ -34,7 +35,5 @@ class Config(BaseModel):
             settings_files=["settings.toml"],
             environments=False,
         )
-        config: dict[str, Any] = {
-            key: settings[key] for key in Config.__annotations__ if key in settings
-        }
+        config: dict[str, Any] = {key: settings[key] for key in Config.__annotations__ if key in settings}
         return Config(**config, **kwargs)
