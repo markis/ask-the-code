@@ -7,7 +7,7 @@ from ask_the_code.types import DocSource
 
 
 class Store(Protocol):
-    def create(self) -> Iterable[None]:
+    def create(self) -> Iterable[str]:
         """Create the store."""
         ...
 
@@ -29,11 +29,6 @@ def get_store(config: Config) -> Store:
         from ask_the_code.store.chroma import ChromaStore
 
         return ChromaStore(config)
-
-    if config.store == "marqo":
-        from ask_the_code.store.marqo import MarqoStore
-
-        return MarqoStore(config)
 
     err_msg = f"Unknown store: {config.store}"
     raise ValueError(err_msg)

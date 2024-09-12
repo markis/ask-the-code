@@ -14,16 +14,13 @@ from rich.progress import Progress
 from ask_the_code.__about__ import __version__
 from ask_the_code.config import Config
 from ask_the_code.dependency import get_config, get_console, get_llm, get_store
+from ask_the_code.error import AskError, CollectionNotFoundError
 from ask_the_code.llm import LLM
 from ask_the_code.store import Store
 from ask_the_code.utils import clean_data_home
 
 REPO_HELP = "The repository path. Defaults to the current directory."
 GLOB_HELP = 'The glob pattern to match files in the repository. Defaults to "**/*.md".'
-
-
-def run() -> None:
-    cli()
 
 
 class DefaultGroup(click.Group):
@@ -46,7 +43,7 @@ def cli() -> None:
 @click.argument("question")
 @click.option("-r", "--repo", type=Path, default=Path.cwd(), help=REPO_HELP)
 @inject
-def ask(
+def ask(  # noqa: PLR0913
     question: str,
     repo: Path,
     config: Config = Depends(get_config),
@@ -70,7 +67,6 @@ def ask(
 @inject
 def clean() -> None:
     """Clean up the data directory."""
-
     return clean_data_home()
 
 
@@ -90,6 +86,21 @@ def create(
         for _ in progress.track(store().create(), description="Indexing"):
             pass
     console.print("[green]Indexing complete![/green]")
+
+
+@inject
+def run(console: Console = Depends(get_console)) -> None:
+    """Run the CLI."""
+    try:
+        cli()
+    except CollectionNotFoundError as e:
+        console.print(f"[red]{e}, run `ask create` to create the collection[/red]")
+    except AskError as e:
+        console.print(f"[red]{e}[/red]")
+    except KeyboardInterrupt:
+        _ = click.Abort()
+    except Exception:  # noqa: BLE001
+        console.print_exception()
 
 
 if __name__ == "__main__":

@@ -35,5 +35,7 @@ class Config(BaseModel):
             settings_files=["settings.toml"],
             environments=False,
         )
-        config: dict[str, Any] = {key: settings[key] for key in Config.__annotations__ if key in settings}
+        config: dict[str, Any] = {
+            key: settings[key] for key in Config.__annotations__ if key in settings
+        }
         return Config(**config, **kwargs)

@@ -203,7 +203,6 @@ dependencies = [
     { name = "flagembedding", marker = "python_full_version < '3.12'" },
     { name = "gitpython", marker = "python_full_version < '3.12'" },
     { name = "huggingface-hub", marker = "python_full_version < '3.12'" },
-    { name = "marqo", marker = "python_full_version < '3.12'" },
     { name = "mistletoe", marker = "python_full_version < '3.12'" },
     { name = "ollama", marker = "python_full_version < '3.12'" },
     { name = "peft", marker = "python_full_version < '3.12'" },
@@ -221,7 +220,6 @@ requires-dist = [
     { name = "flagembedding", specifier = ">=1.2.11" },
     { name = "gitpython", specifier = ">=3.1.43" },
     { name = "huggingface-hub", specifier = ">=0.24.6" },
-    { name = "marqo", specifier = ">=3.7.0" },
     { name = "mistletoe", specifier = ">=1.4.0" },
     { name = "ollama", specifier = ">=0.3.2" },
     { name = "peft", specifier = ">=0.12.0" },
@@ -1102,22 +1100,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/02/8c/ab9a463301a50dab04d5472e998acbd4080597abc048166ded5c7aa768c8/MarkupSafe-2.1.5-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:5049256f536511ee3f7e1b3f87d1d1209d327e818e6ae1365e8653d7e3abb6a6", size = 29823 },
     { url = "https://files.pythonhosted.org/packages/bc/29/9bc18da763496b055d8e98ce476c8e718dcfd78157e17f555ce6dd7d0895/MarkupSafe-2.1.5-cp39-cp39-win32.whl", hash = "sha256:00e046b6dd71aa03a41079792f8473dc494d564611a8f89bbbd7cb93295ebdcf", size = 16658 },
     { url = "https://files.pythonhosted.org/packages/f6/f8/4da07de16f10551ca1f640c92b5f316f9394088b183c6a57183df6de5ae4/MarkupSafe-2.1.5-cp39-cp39-win_amd64.whl", hash = "sha256:fa173ec60341d6bb97a89f5ea19c85c5643c1e7dedebc22f5181eb73573142c5", size = 17211 },
-]
-
-[[package]]
-name = "marqo"
-version = "3.7.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "packaging", marker = "python_full_version < '3.12'" },
-    { name = "pydantic", marker = "python_full_version < '3.12'" },
-    { name = "requests", marker = "python_full_version < '3.12'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
-    { name = "urllib3", marker = "python_full_version < '3.12'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1b/9d/02d47896ea0d137b550afeb31d572e798bfb56547e9014a670b56ecfb4bc/marqo-3.7.0.tar.gz", hash = "sha256:d144cf69a41932fc664f04fc994b8c050998bd730b988e1d3fbe6bd20d9c820e", size = 40939 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/9e/fa8312c95f66f9d76a4891742f86902168b53f2b7a79fa72aa8f8e3898e1/marqo-3.7.0-py3-none-any.whl", hash = "sha256:6f1ff86c3faadb31415bd1adf3e805b2927588c1a5756eeea8fb63097bf94c8a", size = 38695 },
 ]
 
 [[package]]

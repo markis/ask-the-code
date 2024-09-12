@@ -32,7 +32,6 @@ dependencies = [
   "flagembedding>=1.2.11",
   "gitpython>=3.1.43",
   "huggingface-hub>=0.24.6",
-  "marqo>=3.7.0",
   "mistletoe>=1.4.0",
   "ollama>=0.3.2",
   "peft>=0.12.0",
@@ -86,5 +85,14 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+
 [tool.ruff.lint]
-ignore = ["B008", "TCH"]
+select = [
+  "A", "ARG", "B", "BLE", "C4", "C90", "COM818", "DTZ", "EM", "ERA", "EXE", "E", "FA", "FBT", "F", "FIX", "G", "I",
+  "ICN", "INP", "INT", "I", "ISC", "PGH", "PIE", "PL", "PTH", "PYI", "PT", "Q", "Q", "RET", "RSE", "RUF", "SIM",
+  "SLOT", "SLF", "T10", "T20", "TD", "TRY", "UP", "UP", "W", "YTT"
+]
+ignore = ["B008", "ISC001", "TCH"]

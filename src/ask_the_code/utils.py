@@ -1,18 +1,14 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterable
 from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+from platformdirs import PlatformDirsABC
 from typing_extensions import TypeVar
 
 T = TypeVar("T")
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from platformdirs import PlatformDirsABC
 
 
 @cache
@@ -76,10 +72,3 @@ def get_repo_files(path: Path, glob: str) -> Iterable[Path]:
         working_path = Path(repo.working_dir)
         files = [file for file in working_path.glob(glob) if not repo.ignored(file)]
     yield from files
-
-
-def download_hf_model(repo_id: str) -> str:
-    from huggingface_hub import hf_hub_download
-
-    # Download the model from the Hugging Face Hub
-    return hf_hub_download(repo_id=repo_id, filename="model.zip")

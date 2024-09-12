@@ -29,7 +29,7 @@ class Ollama:
         sources = "\n".join((source["source"] + ":\n " + source["text"]) for source in context)
 
         prompt = f"""
-        Given the following extracted parts of a long document ("SOURCES") and a question ("QUESTION").
+        Given the following extracted parts of a document ("SOURCES") and a question ("QUESTION").
         Create a final answer one paragraph long.
         Answer the question and cite the sources in the answer.
         Don't try to make up an answer and use the text in the SOURCES only for the answer.
