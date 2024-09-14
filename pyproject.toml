@@ -36,6 +36,7 @@ dependencies = [
   "ollama>=0.3.2",
   "peft>=0.12.0",
   "platformdirs>=4.2.2",
+  "polars>=1.7.1",
   "rich>=13.8.0",
   "typing-extensions>=4.12.2",
 ]

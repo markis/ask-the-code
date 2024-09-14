@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress
+from rich.table import Table
 
 from ask_the_code.__about__ import __version__
 from ask_the_code.config import Config
@@ -56,11 +57,11 @@ def ask(  # noqa: PLR0913
     sources = store().search(question)
     response_stream = llm().answer(sources, question)
 
-    buffer = ""
+    buffer: list[str] = []
     with Live(console=console) as live:
         for resp in response_stream:
-            buffer += resp
-            live.update(Markdown(buffer))
+            buffer.append(resp)
+            live.update(Markdown("".join(buffer)))
 
 
 @cli.command()
@@ -86,6 +87,31 @@ def create(
         for _ in progress.track(store().create(), description="Indexing"):
             pass
     console.print("[green]Indexing complete![/green]")
+
+
+@cli.command()
+@click.argument("question")
+@click.option("-r", "--repo", type=Path, default=Path.cwd(), help=REPO_HELP)
+@inject
+def search(
+    question: str,
+    repo: Path,
+    config: Config = Depends(get_config),
+    console: Console = Depends(get_console),
+    store: Callable[[], Store] = Depends(get_store),
+) -> None:
+    """Ask a question about the documentation."""
+    del config, repo  # Unused
+    sources = store().search(question)
+
+    source_table = Table(title="Sources")
+    source_table.add_column("Score", style="bold blue")
+    source_table.add_column("Source", style="bold green")
+    source_table.add_column("Text")
+
+    for source in sources:
+        source_table.add_row(str(source["score"]), source["source"], Markdown(source["text"]))
+    console.print(source_table)
 
 
 @inject

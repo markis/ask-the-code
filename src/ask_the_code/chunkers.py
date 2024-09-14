@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 
 Source = str
 Text = str
-
-
-def _convert_to_github_headline_link(text: str) -> str:
-    return text.strip("#").strip().replace(" ", "-").lower()
 
 
 def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, Text]]:
@@ -19,21 +14,25 @@ def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, 
     from mistletoe.block_token import Heading
     from mistletoe.markdown_renderer import MarkdownRenderer
 
-    text = path.read_text().strip()
+    text = path.read_text()
+    relative_str = str(relative_path)
 
     doc = Document(text.splitlines())
     if not (children := doc.children):
         yield (str(path), text)
 
-    sections: dict[str, list[str]] = defaultdict(list)
-    current_section: str = ""
+    section_hierarchy: list[str] = []
+    current_text: list[str] = []
     with MarkdownRenderer(normalize_whitespace=True) as renderer:
         for token in children:
             if isinstance(token, Heading):
-                current_section = renderer.render(token)
-                current_section = _convert_to_github_headline_link(current_section)
-            else:
-                sections[current_section].append(renderer.render(token))
+                if current_text:
+                    yield (f"{relative_str}#{'-'.join(section_hierarchy)}", "\n".join(current_text))
+                    current_text = []
 
-    for section, text_chunk in sections.items():
-        yield f"{relative_path}#{section}", "\n".join(text_chunk)
+                headline = renderer.render(token).strip("#").strip().replace(" ", "-").lower()
+                section_hierarchy = section_hierarchy[: token.level - 1] + [headline]
+            else:
+                current_text.append(renderer.render(token))
+
+    yield f"{relative_str}#{'-'.join(section_hierarchy)}", "\n".join(current_text)

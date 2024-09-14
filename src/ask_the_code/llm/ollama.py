@@ -3,26 +3,18 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable
 from typing import Final
 
-from fast_depends import Depends, inject
 from ollama import Client
 
 from ask_the_code.config import Config
-from ask_the_code.dependency import get_config
 from ask_the_code.types import DocSource
 
 
-def _get_client(config: Config = Depends(get_config)) -> Client:
-    return Client(config.ollama_url)
-
-
 class Ollama:
-    _client: Final[Client]
     _model: Final[str]
 
-    @inject
-    def __init__(self, config: Config, client: Client = Depends(_get_client)) -> None:
-        self._client = client
+    def __init__(self, config: Config) -> None:
         self._model = config.ollama_model
+        self._client = Client(config.ollama_url)
 
     def answer(self, context: Collection[DocSource], question: str) -> Iterable[str]:
         """Generate an answer based on user input using a LLM and Store."""

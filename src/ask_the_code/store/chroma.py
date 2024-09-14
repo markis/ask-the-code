@@ -3,11 +3,11 @@ from __future__ import annotations
 import contextlib
 from collections.abc import Collection, Iterable
 from functools import cached_property
-from itertools import islice
 from pathlib import Path
 from typing import Final, cast
 from uuid import UUID
 
+import polars as pl
 from chromadb import PersistentClient
 from chromadb.api import ClientAPI
 from chromadb.types import Collection as ChromaCollection
@@ -58,13 +58,8 @@ class ChromaStore:
         except ValueError as e:
             raise CollectionNotFoundError(self.collection_name) from e
 
-    def _compute_score(self, query: str, texts: str | Collection[str]) -> Collection[float]:
-        ranker = FlagReranker(
-            self.config.reranker_model,
-            use_fp16=True,
-            cache_dir=str(cache_home() / CHROMA_DIR),
-        )
-        return [float(score) for score in ranker.compute_score([(query, text) for text in texts])]
+    def _compute_score(self, query: str, texts: Collection[str]) -> Collection[float]:
+        return self.reranker.compute_score([(query, text) for text in texts])
 
     def create(self) -> Iterable[str]:
         """Create the knowledge store."""
@@ -79,13 +74,11 @@ class ChromaStore:
         collection = self._get_collection(self.collection_name)
         relative_path = path.relative_to(self.working_path)
 
-        chunks = markdown_chunker(path, relative_path)
-
-        iterator = iter({"source": source, "text": chunk} for source, chunk in chunks)
-        while batch := list(islice(iterator, MAX_BATCH_SIZE)):
-            ids = [doc["source"] for doc in batch]
-            docs = [doc["text"] for doc in batch]
-            collection.upsert(ids=ids, documents=docs)
+        md_chunks = markdown_chunker(path, relative_path)
+        df = pl.from_records(list(md_chunks), schema=["id", "doc"], orient="row")
+        for i in range(0, len(df), MAX_BATCH_SIZE):
+            chunk = df.slice(i, MAX_BATCH_SIZE)
+            collection.upsert(ids=chunk["id"].to_list(), documents=chunk["doc"].to_list())
 
     def reset_index(self) -> None:
         """Reset the knowledge store."""
@@ -101,16 +94,11 @@ class ChromaStore:
         if not results or not (documents := results.get("documents")):
             return []
 
-        ids = [source for ids in results["ids"] for source in ids]
-        texts = [text for texts in documents for text in texts]
-        scores = self._compute_score(query, texts)
-
-        return sorted(
-            [
-                DocSource(source=source, text=text, score=score)
-                for source, text, score in zip(ids, texts, scores)
-                if score > min_score
-            ],
-            key=lambda doc: doc["score"],
-            reverse=True,
+        df = pl.DataFrame({"source": results["ids"], "text": documents}).explode("source", "text")
+        scores = self._compute_score(query, df["text"].to_list())
+        df = (
+            df.with_columns(pl.Series("score", scores))
+            .filter(pl.col("score") > min_score)
+            .sort("score", descending=True)
         )
+        return cast(list[DocSource], df.to_dicts())

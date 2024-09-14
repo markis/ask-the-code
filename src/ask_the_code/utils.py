@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Iterable
 from functools import cache
+from itertools import islice
 from pathlib import Path
 
 from platformdirs import PlatformDirsABC
@@ -72,3 +73,12 @@ def get_repo_files(path: Path, glob: str) -> Iterable[Path]:
         working_path = Path(repo.working_dir)
         files = [file for file in working_path.glob(glob) if not repo.ignored(file)]
     yield from files
+
+
+def chunks(iterable: Iterable[T], chunk_size: int) -> Iterable[list[T]]:
+    it = iter(iterable)
+    while True:
+        chunk = list(islice(it, chunk_size))
+        if not chunk:
+            break
+        yield chunk
