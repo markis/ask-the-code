@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import override
 
 import click
 from fast_depends import Depends, inject
@@ -11,6 +10,7 @@ from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress
 from rich.table import Table
+from typing_extensions import override
 
 from ask_the_code.__about__ import __version__
 from ask_the_code.config import Config
