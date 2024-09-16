@@ -14,6 +14,10 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Install Hatch
+        run: uv add --frozen hatch
       - run: uv run hatch fmt
 
   types:
@@ -26,4 +30,8 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Install Hatch
+        run: uv add --frozen hatch
       - run: uv run hatch run types:check
