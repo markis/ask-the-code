@@ -59,7 +59,8 @@ class ChromaStore:
             raise CollectionNotFoundError(self.collection_name) from e
 
     def _compute_score(self, query: str, texts: Collection[str]) -> Collection[float]:
-        return self.reranker.compute_score([(query, text) for text in texts])
+        scores: Collection[float] = self.reranker.compute_score([(query, text) for text in texts])
+        return scores
 
     def create(self) -> Iterable[str]:
         """Create the knowledge store."""

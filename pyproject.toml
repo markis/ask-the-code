@@ -67,6 +67,11 @@ check = "mypy --install-types --non-interactive {args:src/ask_the_code tests}"
 strict = true
 ignore_missing_imports = true
 
+[tool.hatch.envs.test]
+dependencies = [
+  "pytest"
+]
+
 [tool.coverage.run]
 source_pkgs = ["ask_the_code", "tests"]
 branch = true

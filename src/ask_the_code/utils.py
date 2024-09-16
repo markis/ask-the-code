@@ -49,14 +49,6 @@ def clean_data_home() -> None:
     shutil.rmtree(cache_home(), ignore_errors=True)
 
 
-def copy_class_vars_to_instance(cls: type[T], instance: T) -> None:
-    """Copy class variables to an instance."""
-    for attr in cls.__dict__:
-        value: object = getattr(cls, attr)
-        if not attr.startswith("__") and not callable(value):
-            setattr(instance, attr, value)
-
-
 def get_working_path(cwd: Path) -> Path:
     """Get the working path."""
     from git.repo import Repo
