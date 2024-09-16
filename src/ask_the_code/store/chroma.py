@@ -79,7 +79,7 @@ class ChromaStore:
         df = pl.from_records(list(md_chunks), schema=["id", "doc"], orient="row")
         for i in range(0, len(df), MAX_BATCH_SIZE):
             chunk = df.slice(i, MAX_BATCH_SIZE)
-            collection.upsert(ids=chunk["id"].to_list(), documents=chunk["doc"].to_list())
+            collection.upsert(ids=chunk["id"].to_list(), documents=chunk["doc"].to_list())  # type: ignore[attr-defined]
 
     def reset_index(self) -> None:
         """Reset the knowledge store."""
@@ -91,7 +91,7 @@ class ChromaStore:
     def search(self, query: str, min_score: float = 0.0) -> Collection[DocSource]:
         """Query the knowledge store for content"""
         collection = self._get_collection(self.collection_name)
-        results = collection.query(query_texts=query, n_results=10)
+        results = collection.query(query_texts=query, n_results=10)  # type: ignore[attr-defined]
         if not results or not (documents := results.get("documents")):
             return []
 
