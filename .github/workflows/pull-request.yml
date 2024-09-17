@@ -13,8 +13,6 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Install Hatch
         run: uv add --frozen hatch
       - run: uv run hatch fmt
@@ -28,8 +26,6 @@ jobs:
         uses: astral-sh/setup-uv@v2
         with:
           enable-cache: true
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Install Hatch
         run: uv add --frozen hatch
       - run: uv run hatch run types:check
