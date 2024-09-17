@@ -9,23 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Define a cache dependency glob
-        uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - name: Install Hatch
+      - name: Setup Hatch
         uses: pypa/hatch@install
-      - run: hatch fmt
+      - name: Run Format
+        run: hatch fmt
 
   types:
     name: types
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Define a cache dependency glob
-        uses: astral-sh/setup-uv@v2
-        with:
-          enable-cache: true
-      - name: Install Hatch
+      - name: Setup Hatch
         uses: pypa/hatch@install
-      - run: hatch run types:check
+      - name: Run Type Check
+        run: hatch run types:check
