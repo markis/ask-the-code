@@ -59,6 +59,11 @@ installer = "uv"
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
+  "types-Deprecated",
+  "types-PyYAML",
+  "types-protobuf",
+  "types-redis",
+  "types-tabulate",
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/ask_the_code tests}"

@@ -8,22 +8,23 @@ jobs:
     name: fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Define a cache dependency glob
-        uses: astral-sh/setup-uv@v2
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - run: uv run hatch fmt
+      - uses: actions/checkout@main
+      - name: Setup Hatch
+        uses: pypa/hatch@install
+      - name: Run Format
+        run: hatch fmt
 
   types:
-    name: fmt
+    name: types
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Define a cache dependency glob
+      - uses: actions/checkout@main
+      - name: Enable caching
         uses: astral-sh/setup-uv@v2
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - run: uv run hatch run types:check
+          cache-dependency-glob: "pyproject.toml"
+      - name: Setup Hatch
+        uses: pypa/hatch@install
+      - name: Run Type Check
+        run: hatch run types:check
