@@ -19,6 +19,8 @@ def mock_config() -> Iterable[Mock]:
         (repo / "README.md").touch()
         git = Git(repo)
         git.init()
+        git.config("user.email", "test@test.com")
+        git.config("user.name", "Test")
         git.add(".")
         git.commit("--no-gpg-sign", '--author="Test <test@test.com>"', "-m", "Initial commit")
         yield Mock(spec=Config, repo=repo)
