@@ -20,7 +20,7 @@ def mock_config() -> Iterable[Mock]:
         git = Git(repo)
         git.init()
         git.add(".")
-        git.commit("--no-gpg-sign", "-m", "Initial commit")
+        git.commit("--no-gpg-sign", '--author="Test <test@test.com>"', "-m", "Initial commit")
         yield Mock(spec=Config, repo=repo)
 
 
