@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
+      - name: Enable caching
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
       - name: Setup Hatch
         uses: pypa/hatch@install
       - name: Run Format
@@ -19,6 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
+      - name: Enable caching
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
       - name: Setup Hatch
         uses: pypa/hatch@install
       - name: Run Type Check
