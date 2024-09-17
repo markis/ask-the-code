@@ -40,4 +40,4 @@ jobs:
       - name: Setup Hatch
         uses: pypa/hatch@install
       - name: Run Type Check
-        run: hatch test
+        run: hatch test -py=${{ matrix.python-version }}

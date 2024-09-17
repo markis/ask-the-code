@@ -55,7 +55,6 @@ path = "src/ask_the_code/__about__.py"
 
 [tool.hatch.envs.default]
 installer = "uv"
-skip-install = true
 
 [[tool.hatch.envs.test.matrix]]
 python = ["38", "39", "310", "311", "312"]
