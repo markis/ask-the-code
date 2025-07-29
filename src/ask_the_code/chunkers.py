@@ -21,18 +21,38 @@ def markdown_chunker(path: Path, relative_path: Path) -> Iterable[tuple[Source, 
     if not (children := doc.children):
         yield (str(path), text)
 
-    section_hierarchy: list[str] = []
-    current_text: list[str] = []
-    with MarkdownRenderer(normalize_whitespace=True) as renderer:
-        for token in children:
-            if isinstance(token, Heading):
-                if current_text:
-                    yield (f"{relative_str}#{'-'.join(section_hierarchy)}", "\n".join(current_text))
-                    current_text = []
+    else:
+        heading_path: list[str] = []
+        section_content: list[str] = []
+        relative_str = str(relative_path)
+        seen_ids: set[str] = set()
+        counter = 0
 
-                headline = renderer.render(token).strip("#").strip().replace(" ", "-").lower()
-                section_hierarchy = section_hierarchy[: token.level - 1] + [headline]
-            else:
-                current_text.append(renderer.render(token))
+        with MarkdownRenderer(normalize_whitespace=True) as renderer:
+            for token in children:
+                if isinstance(token, Heading):
+                    if section_content:
+                        base_section_id = f"{relative_str}#{'-'.join(heading_path)}"
+                        section_id = base_section_id
+                        while section_id in seen_ids:
+                            counter += 1
+                            section_id = f"{base_section_id}-{counter}"
+                        seen_ids.add(section_id)
+                        yield section_id, "\n".join(section_content)
+                        section_content = []
 
-    yield f"{relative_str}#{'-'.join(section_hierarchy)}", "\n".join(current_text)
+                    heading_text = (
+                        renderer.render(token).strip("#").strip().replace(" ", "-").lower()
+                    )
+                    heading_path = heading_path[: token.level - 1] + [heading_text]
+                else:
+                    section_content.append(renderer.render(token))
+
+            if section_content:
+                base_section_id = f"{relative_str}#{'-'.join(heading_path)}"
+                section_id = base_section_id
+                while section_id in seen_ids:
+                    counter += 1
+                    section_id = f"{base_section_id}-{counter}"
+                seen_ids.add(section_id)
+                yield section_id, "\n".join(section_content)
