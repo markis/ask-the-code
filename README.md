@@ -1,8 +1,5 @@
 # Ask the Code
 
-[![PyPI - Version](https://img.shields.io/pypi/v/ask-the-code.svg)](https://pypi.org/project/ask-the-code)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ask-the-code.svg)](https://pypi.org/project/ask-the-code)
-
 A CLI tool for asking questions about documentation in a repository using AI-powered semantic search and retrieval-augmented generation (RAG).
 
 -----
@@ -26,7 +23,7 @@ A CLI tool for asking questions about documentation in a repository using AI-pow
 ## Installation
 
 ```console
-pip install ask-the-code
+pip install git+https://github.com/markis/ask-the-code.git
 ```
 
 ## Usage
